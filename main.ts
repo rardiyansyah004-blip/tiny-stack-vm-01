@@ -32,8 +32,8 @@ switch(b){
 case 16:r=a+y|0;break;
 case 17:r=a-y|0;break;
 case 18:r=Math.imul(a,y);break;
-case 19:if(!y)return d(4);r=a===-2147483648&&y===-1?a:a/y|0;break;
-case 20:if(!y)return d(4);r=y===-1?0:a%y|0;break;
+case 19:if(!y)return d(4);r=a/y|0;break;
+case 20:if(!y)return d(4);r=a%y|0;break;
 case 21:if(!y)return d(4);r=(a>>>0)/(y>>>0)|0;break;
 case 22:if(!y)return d(4);r=(a>>>0)%(y>>>0)|0;break;
 case 24:r=a&y;break;

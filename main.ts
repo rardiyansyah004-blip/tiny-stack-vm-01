@@ -41,10 +41,10 @@ case 25:r=a|y;break;
 case 26:r=a^y;break;
 case 28:r=a<<(y&31);break;
 case 29:r=a>>(y&31);break;
-case 30:r=(a>>>(y&31))|0;break;
-case 32:r=a===y?1:0;break;
-case 33:r=a<y?1:0;break;
-default:r=(a>>>0)<(y>>>0)?1:0;
+case 30:r=a>>>(y&31);break;
+case 32:r=+(a===y);break;
+case 33:r=+(a<y);break;
+default:r=+((a>>>0)<(y>>>0));
 }
 s-=2;D[s++]=r;break;}
 case 48:case 49:case 50:{

@@ -1,11 +1,7 @@
-// Tiny stack VM - clean-room implementation of make.fun's tiny stack ISA v1.
-// Answers every instance in one run: /input/<id>/{program,input}.bin
-// -> /output/<id>/{stdout.bin,exit.txt}. No network, secrets, eval or clock.
 import{mkdirSync,readdirSync,readFileSync,writeFileSync}from'node:fs';
-import{join}from'node:path';
 const T="$5e(*./3########-------)---)---#---#############DHHD$###########),##############((%(",I=process.env.MAKEFUN_INPUT_DIR||'/input',O=process.env.MAKEFUN_OUTPUT_DIR||'/output';
 function run(p,q){
-let n=p.length,D=new Int32Array(256),s=0,C=new Int32Array(64),c=0,M=new Int32Array(256),o=new Uint8Array(65536),l=0,j=0,pc=0,t=0;
+let n=p.length,D=new Int32Array(256),s=0,C=new Int32Array(64),c=0,M=new Int32Array(256),o=Buffer.alloc(65536),l=0,j=0,pc=0,t=0;
 const d=e=>[o.slice(0,l),e];
 for(;;){
 if(t===1e6)return d(10);
@@ -13,11 +9,11 @@ if(pc<0||pc>=n)return d(9);
 let b=p[pc],m=T.charCodeAt(b)-35;
 if(!m)return d(5);
 m--;
-let x=pc+1+(m>>4);
-if(pc+(m>>4)>=n)return d(9);
+let f=m>>4,g=(m>>2)&3,h=m&3,x=pc+1+f;
+if(pc+f>=n)return d(9);
 t++;
-if(s<((m>>2)&3))return d(2);
-if(s-((m>>2)&3)+(m&3)>256)return d(3);
+if(s<g)return d(2);
+if(s-g+h>256)return d(3);
 pc=x;
 switch(b){
 case 0:return d(0);
@@ -36,9 +32,9 @@ switch(b){
 case 16:r=a+y|0;break;
 case 17:r=a-y|0;break;
 case 18:r=Math.imul(a,y);break;
-case 19:if(!y)return d(4);r=a===-2147483648&&y===-1?a:(a/y)|0;break;
-case 20:if(!y)return d(4);r=y===-1?0:(a%y)|0;break;
-case 21:if(!y)return d(4);r=Math.floor((a>>>0)/(y>>>0))|0;break;
+case 19:if(!y)return d(4);r=a===-2147483648&&y===-1?a:a/y|0;break;
+case 20:if(!y)return d(4);r=y===-1?0:a%y|0;break;
+case 21:if(!y)return d(4);r=(a>>>0)/(y>>>0)|0;break;
 case 22:if(!y)return d(4);r=(a>>>0)%(y>>>0)|0;break;
 case 24:r=a&y;break;
 case 25:r=a|y;break;
@@ -60,7 +56,7 @@ case 51:if(c===64)return d(7);C[c++]=x;pc=p[x-2]|p[x-1]<<8;break;
 case 52:if(!c)return d(8);pc=C[--c];break;
 case 64:{let a=D[s-1];if(a<0||a>255)return d(6);D[s-1]=M[a];break;}
 case 65:{let a=D[s-1],v=D[s-2];if(a<0||a>255)return d(6);s-=2;M[a]=v;break;}
-case 80:{let v=String(D[s-1]);if(l+v.length>65536)return d(11);s--;for(let i=0;i<v.length;i++)o[l++]=v.charCodeAt(i);break;}
+case 80:{let v=''+D[s-1];if(l+v.length>65536)return d(11);s--;o.set(Buffer.from(v),l);l+=v.length;break;}
 case 81:if(l+1>65536)return d(11);o[l++]=D[--s]&255;break;
 case 82:D[s++]=j<q.length?q[j++]:-1;break;
 case 83:return d(D[--s]&255);
@@ -68,8 +64,8 @@ case 83:return d(D[--s]&255);
 }
 }
 for(const id of readdirSync(I).sort()){
-let g=join(I,id),u=run(readFileSync(join(g,'program.bin')),readFileSync(join(g,'input.bin')));
-mkdirSync(join(O,id),{recursive:!0});
-writeFileSync(join(O,id,'stdout.bin'),u[0]);
-writeFileSync(join(O,id,'exit.txt'),u[1]+'\n');
+let g=I+'/'+id,u=run(readFileSync(g+'/program.bin'),readFileSync(g+'/input.bin'));
+mkdirSync(O+'/'+id,{recursive:!0});
+writeFileSync(O+'/'+id+'/stdout.bin',u[0]);
+writeFileSync(O+'/'+id+'/exit.txt',u[1]+'\n');
 }
